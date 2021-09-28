@@ -31,7 +31,6 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	command := strings.Trim(args.Command, " ")
 
-	// display the plugin version
 	if strings.HasSuffix(command, "__version") {
 		post := model.Post{
 			ChannelId: args.ChannelId,
@@ -42,7 +41,6 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return &model.CommandResponse{}, nil
 	}
 
-	// display the plugin version
 	if strings.HasSuffix(command, "__id") {
 		post := model.Post{
 			ChannelId: args.ChannelId,
@@ -53,7 +51,6 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return &model.CommandResponse{}, nil
 	}
 
-	// send DM
 	if strings.HasSuffix(command, "send") {
 		message := "안냐쎄여 저는 클랩의 스탠드업을 책임져줄 로봇이에요!"
 		p.PostBotDM("ziba5knnofy9ucguaotfzwyz3h", message) //FIXME: 여기 바꿔야됨!
