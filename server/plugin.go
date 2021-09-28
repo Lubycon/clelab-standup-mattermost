@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
 type Plugin struct {
@@ -19,7 +19,7 @@ type Plugin struct {
 
 	ServerConfig *model.Config
 
-	remindUserID string
+	userID string
 }
 
 // ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
