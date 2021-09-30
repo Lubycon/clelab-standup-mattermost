@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -18,6 +19,10 @@ type Plugin struct {
 	emptyTime time.Time
 
 	ServerConfig *model.Config
+
+	configuration *configuration
+
+	configurationLock sync.RWMutex
 
 	userID string
 }
