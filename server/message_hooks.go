@@ -6,17 +6,6 @@ import (
 )
 
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
-	configuration := p.getConfiguration()
-
-	if configuration.disabled {
-		return
-	}
-
-	// Ignore posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.userID || post.UserId == configuration.demoUserID {
-		return
-	}
-
 	channel, err := p.API.GetDirectChannel(post.UserId, p.userID)
 	if err != nil {
 		p.API.LogError(
