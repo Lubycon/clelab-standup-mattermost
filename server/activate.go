@@ -12,7 +12,17 @@ func (p *Plugin) OnActivate() error {
 	p.ServerConfig = p.API.GetConfig()
 	p.router = p.InitAPI()
 	p.emptyTime = time.Time{}.AddDate(1, 1, 1)
+	p.userID = p.settingBotInfo()
+	p.job = p.settingScheduler()
 
+	if p.registerCommand() != nil {
+		return errors.Wrap(p.registerCommand(), "failed to register command")
+	}
+
+	return nil
+}
+
+func (p *Plugin) settingBotInfo() string {
 	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
 
 		Username:    "cletandup",
@@ -21,14 +31,14 @@ func (p *Plugin) OnActivate() error {
 	})
 
 	if err != nil {
-		return errors.Wrap(err, "failed to ensure bot account")
-	}
-	p.userID = botUserID
-
-	if p.registerCommand() != nil {
-		return errors.Wrap(p.registerCommand(), "failed to register command")
+		p.API.LogError(">>> [에러] failed to ensure bot account: " + err.Error())
+		return ""
 	}
 
+	return botUserID
+}
+
+func (p *Plugin) settingScheduler() *cluster.Job {
 	job, err := cluster.Schedule(
 		p.API,
 		"BackgroundJob",
@@ -38,17 +48,14 @@ func (p *Plugin) OnActivate() error {
 			jobErr := SendNotification(p)
 
 			if jobErr != nil {
-				p.API.LogError(">>> [에러] Failed to send notification. Error: " + err.Error())
+				p.API.LogError(">>> [에러] Failed to send notification. Error: " + jobErr.Error())
 			}
 		},
 	)
 
 	if err != nil {
 		p.API.LogError(">>> [에러] Unable to schedule job for standup reports: " + err.Error())
-		return err
+		return nil
 	}
-
-	p.job = job
-
-	return nil
+	return job
 }

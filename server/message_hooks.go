@@ -54,5 +54,4 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 			Message:   post.Message,
 		})
 	}
-
 }

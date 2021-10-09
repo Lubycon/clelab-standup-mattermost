@@ -7,6 +7,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+func SendNotification(p *Plugin) error {
+	message := "안냐쎄여 저는 클랩의 스탠드업을 책임져줄 로봇이에요!"
+	p.PostBotDM("ziba5knnofy9ucguaotfzwyz3h", message) //FIXME: 여기 바꿔야됨!
+
+	return nil
+}
+
 func (p *Plugin) PostBotDM(userID string, message string) {
 	p.createBotPostDM(&model.Post{
 		UserId:  p.userID,
@@ -14,29 +21,15 @@ func (p *Plugin) PostBotDM(userID string, message string) {
 	}, userID)
 }
 
-func (p *Plugin) PostBotCustomDM(userID string, message string, todo string, issueID string) {
-	p.createBotPostDM(&model.Post{
-		UserId:  p.userID,
-		Message: message + ": " + todo,
-		Type:    "custom_",
-		Props: map[string]interface{}{
-			"type":    "custom",
-			"message": message,
-			"todo":    todo,
-			"issueId": issueID,
-		},
-	}, userID)
-}
-
 func (p *Plugin) createBotPostDM(post *model.Post, userID string) {
 	channel, appError := p.API.GetDirectChannel(userID, p.userID)
 
 	if appError != nil {
-		p.API.LogError("Unable to get direct channel for bot err=" + appError.Error())
+		p.API.LogError(">>> [에러] Unable to get direct channel for bot err: " + appError.Error())
 		return
 	}
 	if channel == nil {
-		p.API.LogError("Could not get direct channel for bot and user_id=%s", userID)
+		p.API.LogError(">>> [에러] Could not get direct channel for bot and user_id: " + appError.Error())
 		return
 	}
 
@@ -44,13 +37,13 @@ func (p *Plugin) createBotPostDM(post *model.Post, userID string) {
 	_, appError = p.API.CreatePost(post)
 
 	if appError != nil {
-		p.API.LogError("Unable to create bot post DM err=" + appError.Error())
+		p.API.LogError(">>> [에러] Unable to create bot post DM err: " + appError.Error())
 	}
 }
 
 func (p *Plugin) ReplyPostBot(postID, message, todo string) error {
 	if postID == "" {
-		return errors.New("post ID not defined")
+		return errors.New(">>> [에러] post ID not defined")
 	}
 
 	post, appErr := p.API.GetPost(postID)
