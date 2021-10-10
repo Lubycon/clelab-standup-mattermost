@@ -17,7 +17,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	if post.ChannelId == channel.Id {
-		team, err := p.API.GetTeamByName("sss")
+		team, err := p.API.GetTeamByName(TeamName)
 		if err != nil {
 			p.API.LogError(
 				"Failed to query user",
@@ -27,7 +27,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 			return
 		}
 
-		targetChannel, err := p.API.GetChannelByName(team.Id, "town-square", false) //FIXME: 여기 바꿔야됨!
+		targetChannel, err := p.API.GetChannelByName(team.Id, SendChannelName, false)
 		if err != nil {
 			p.API.LogError(
 				"Failed to query channel",
