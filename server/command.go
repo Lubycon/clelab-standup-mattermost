@@ -53,7 +53,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	if strings.HasSuffix(command, "send") {
 		message := StandUpMessage
-		p.PostBotDM(TestUserId, message) //FIXME: 여기 바꿔야됨!
+		p.PostBotDM(TestUserID, message) //FIXME: 여기 바꿔야됨!
 	}
 
 	return &model.CommandResponse{}, nil

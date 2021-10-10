@@ -9,7 +9,7 @@ import (
 
 func SendNotification(p *Plugin) error {
 	message := StandUpMessage
-	p.PostBotDM(TestUserId, message) //FIXME: 여기 바꿔야됨!
+	p.PostBotDM(TestUserID, message) //FIXME: 여기 바꿔야됨!
 
 	return nil
 }
