@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	_type "github.com/mattermost/mattermost-plugin-starter-template/server/type"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -9,8 +11,26 @@ import (
 
 func SendNotification(p *Plugin) error {
 	message := StandUpMessage
-	p.PostBotDM(TestUserID, message) //FIXME: 여기 바꿔야됨!
 
+	channelListData, err := p.API.KVGet(ChannelListKey)
+	if err != nil {
+		return err
+	}
+	channelList := _type.ChannelList{}
+	err2 := json.Unmarshal(channelListData, &channelList)
+	if err2 != nil {
+		return err2
+	}
+
+	for _, channel := range channelList {
+		users, err3 := p.API.GetUsersInChannel(channel.ID, "username", 0,100)
+		if err3 != nil {
+			return err3
+		}
+		for _, user := range users {
+			p.PostBotDM(user.Id, message)
+		}
+	}
 	return nil
 }
 
