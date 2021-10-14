@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/mattermost/mattermost-plugin-starter-template/server/type"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -22,6 +24,7 @@ func (p *Plugin) registerCommand() error {
 
 	return nil
 }
+
 
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	user, uErr := p.API.GetUser(args.UserId)
@@ -54,6 +57,33 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	if strings.HasSuffix(command, "send") {
 		message := StandUpMessage
 		p.PostBotDM(TestUserID, message) //FIXME: 여기 바꿔야됨!
+	}
+
+	if strings.HasSuffix(command, "addChannel") {
+		channelId := args.ChannelId
+		channelListData, err := p.API.KVGet(ChannelListKey)
+		if err != nil {
+			return &model.CommandResponse{}, err
+		}
+
+		channelList := _type.ChannelList{}
+		err2 := json.Unmarshal(channelListData, &channelList)
+		if err2 != nil {
+			return &model.CommandResponse{}, nil
+		}
+
+		channel := _type.Channel{ID: channelId}
+		channelList = append(channelList, channel)
+
+		channelJson, err3 := json.Marshal(channelList)
+		if err3 != nil {
+			return &model.CommandResponse{}, nil
+		}
+
+		err = p.API.KVSet(ChannelListKey, channelJson)
+		if err != nil {
+			return &model.CommandResponse{}, err
+		}
 	}
 
 	return &model.CommandResponse{}, nil
