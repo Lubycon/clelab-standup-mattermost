@@ -40,13 +40,16 @@ func (p *Plugin) settingScheduler() *cluster.Job {
 	job, err := cluster.Schedule(
 		p.API,
 		"BackgroundJob",
-		cluster.MakeWaitForRoundedInterval(24*time.Hour),
+		cluster.MakeWaitForRoundedInterval(1*time.Hour),
 		func() {
-			p.API.LogInfo("Start Scheduler Job")
-			jobErr := SendNotification(p)
+			hour := time.Now().Hour()
+			if hour == 10 {
+				p.API.LogInfo("Start Scheduler Job")
+				jobErr := SendNotification(p)
 
-			if jobErr != nil {
-				p.API.LogError(">>> [에러] Failed to send notification. Error: " + jobErr.Error())
+				if jobErr != nil {
+					p.API.LogError(">>> [에러] Failed to send notification. Error: " + jobErr.Error())
+				}
 			}
 		},
 	)
