@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/mattermost/mattermost-plugin-starter-template/server/type"
 	"strings"
 
+	"github.com/mattermost/mattermost-plugin-starter-template/server/types"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
@@ -24,7 +24,6 @@ func (p *Plugin) registerCommand() error {
 
 	return nil
 }
-
 
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	user, uErr := p.API.GetUser(args.UserId)
@@ -60,30 +59,40 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	}
 
 	if strings.HasSuffix(command, "addChannel") {
-		channelId := args.ChannelId
+		channelID := args.ChannelId
 		channelListData, err := p.API.KVGet(ChannelListKey)
 		if err != nil {
+			p.API.LogError(">>> [에러] Occurred error when KVGet : " + err.Error())
 			return &model.CommandResponse{}, err
 		}
 
-		channelList := _type.ChannelList{}
+		channelList := types.ChannelList{}
 		err2 := json.Unmarshal(channelListData, &channelList)
 		if err2 != nil {
-			return &model.CommandResponse{}, nil
+			p.API.LogError(">>> [에러] Occurred error when Unmarshal : " + err2.Error())
 		}
 
-		channel := _type.Channel{ID: channelId}
+		channel := types.Channel{ID: channelID}
 		channelList = append(channelList, channel)
 
-		channelJson, err3 := json.Marshal(channelList)
+		channelJSON, err3 := json.Marshal(channelList)
 		if err3 != nil {
+			p.API.LogError(">>> [에러] Occurred error when Marshal : " + err3.Error())
 			return &model.CommandResponse{}, nil
 		}
 
-		err = p.API.KVSet(ChannelListKey, channelJson)
+		err = p.API.KVSet(ChannelListKey, channelJSON)
 		if err != nil {
+			p.API.LogError(">>> [에러] Occurred error when KVSet : " + err.Error())
 			return &model.CommandResponse{}, err
 		}
+
+		post := model.Post{
+			ChannelId: args.ChannelId,
+			UserId:    p.userID,
+			Message:   "추가완료!",
+		}
+		p.API.SendEphemeralPost(user.Id, &post)
 	}
 
 	return &model.CommandResponse{}, nil
