@@ -2,28 +2,38 @@ package main
 
 import (
 	"encoding/json"
-	_type "github.com/mattermost/mattermost-plugin-starter-template/server/type"
 	"strings"
+	"time"
 
+	"github.com/mattermost/mattermost-plugin-starter-template/server/types"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 )
 
-func SendNotification(p *Plugin) error {
+func SendNotification(p *Plugin, nowTime time.Time) error {
 	message := StandUpMessage
 
 	channelListData, err := p.API.KVGet(ChannelListKey)
 	if err != nil {
 		return err
 	}
-	channelList := _type.ChannelList{}
+	channelList := types.ChannelList{}
 	err2 := json.Unmarshal(channelListData, &channelList)
 	if err2 != nil {
 		return err2
 	}
 
 	for _, channel := range channelList {
-		users, err3 := p.API.GetUsersInChannel(channel.ID, "username", 0,100)
+		_, err := p.API.CreatePost(&model.Post{
+			ChannelId: channel.ID,
+			UserId:    p.userID,
+			Message:   nowTime.Format("2006년 01월 02일 오늘의 스탠드업!"),
+		})
+		if err != nil {
+			return err
+		}
+
+		users, err3 := p.API.GetUsersInChannel(channel.ID, "username", 0, 100)
 		if err3 != nil {
 			return err3
 		}
