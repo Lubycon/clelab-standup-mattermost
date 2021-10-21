@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-starter-template/build/sync/plan/git"
 )
 
-// CheckFail is a custom error type used to indicate a
+// CheckFail is a custom error types used to indicate a
 // check that did not pass (but did not fail due to external
 // causes.
 // Use `IsCheckFail` to check if an error is a check failure.

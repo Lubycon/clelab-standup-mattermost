@@ -154,16 +154,16 @@ type Action interface {
 // jsonPlan is used to unmarshal Plan structures.
 type jsonPlan struct {
 	Checks []struct {
-		Type   string          `json:"type"`
+		Type   string          `json:"types"`
 		Params json.RawMessage `json:"params,omitempty"`
 	}
 	Actions []struct {
 		Paths   []string `json:"paths"`
 		Actions []struct {
-			Type       string          `json:"type"`
+			Type       string          `json:"types"`
 			Params     json.RawMessage `json:"params,omitempty"`
 			Conditions []struct {
-				Type   string          `json:"type"`
+				Type   string          `json:"types"`
 				Params json.RawMessage `json:"params"`
 			}
 		}
@@ -189,7 +189,7 @@ func parseCheck(checkType string, rawParams json.RawMessage) (Check, error) {
 		params = &tc.Params
 		c = &tc
 	default:
-		return nil, fmt.Errorf("unknown checker type %q", checkType)
+		return nil, fmt.Errorf("unknown checker types %q", checkType)
 	}
 
 	if len(rawParams) > 0 {
@@ -218,7 +218,7 @@ func parseAction(actionType string, rawParams json.RawMessage, checks []Check) (
 		params = &ta.Params
 		a = &ta
 	default:
-		return nil, fmt.Errorf("unknown action type %q", actionType)
+		return nil, fmt.Errorf("unknown action types %q", actionType)
 	}
 
 	if len(rawParams) > 0 {

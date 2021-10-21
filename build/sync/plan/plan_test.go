@@ -15,16 +15,16 @@ func TestUnmarshalPlan(t *testing.T) {
 	rawJSON := []byte(`
 {
   "checks": [
-    {"type": "repo_is_clean", "params": {"repo": "template"}}
+    {"types": "repo_is_clean", "params": {"repo": "template"}}
   ],
   "actions": [
     {
       "paths": ["abc"],
       "actions": [{
-        "type": "overwrite_file",
+        "types": "overwrite_file",
         "params": {"create": true},
         "conditions": [{
-          "type": "exists",
+          "types": "exists",
           "params": {"repo": "plugin"}
         }]
       }]
