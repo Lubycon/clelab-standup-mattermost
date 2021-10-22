@@ -37,10 +37,16 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 			return
 		}
 
-		p.API.SendEphemeralPost(post.UserId, &model.Post{
-			UserId:    p.userID,
+		_, pErr := p.API.CreatePost(&model.Post{
 			ChannelId: targetChannel.Id,
+			UserId:    p.userID,
 			Message:   post.Message,
 		})
+		if pErr != nil {
+			p.API.LogError(
+				"Failed to CreatePost : " + pErr.Error(),
+			)
+			return
+		}
 	}
 }
