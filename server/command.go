@@ -73,6 +73,18 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		}
 
 		channel := types.Channel{ID: channelID}
+		for _, ch := range channelList {
+			if ch.ID == channel.ID {
+				post := model.Post{
+					ChannelId: args.ChannelId,
+					UserId:    p.userID,
+					Message:   "이미 추가되어있는 채널입니다.",
+				}
+				p.API.SendEphemeralPost(user.Id, &post)
+				return &model.CommandResponse{}, nil
+			}
+		}
+
 		channelList = append(channelList, channel)
 
 		channelJSON, err3 := json.Marshal(channelList)
@@ -90,9 +102,51 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		post := model.Post{
 			ChannelId: args.ChannelId,
 			UserId:    p.userID,
-			Message:   "추가완료!",
+			Message:   "추가 성공 :)",
 		}
 		p.API.SendEphemeralPost(user.Id, &post)
+	}
+
+	if strings.HasSuffix(command, "deleteChannel") {
+		channelID := args.ChannelId
+		channelListData, err := p.API.KVGet(ChannelListKey)
+		if err != nil {
+			p.API.LogError(">>> [에러] Occurred error when KVGet : " + err.Error())
+			return &model.CommandResponse{}, err
+		}
+
+		channelList := types.ChannelList{}
+		err2 := json.Unmarshal(channelListData, &channelList)
+		if err2 != nil {
+			p.API.LogError(">>> [에러] Occurred error when Unmarshal : " + err2.Error())
+		}
+
+		channel := types.Channel{ID: channelID}
+		for i, ch := range channelList {
+			if ch.ID == channel.ID {
+				channelList = append(channelList[:i], channelList[i+1:]...)
+
+				post := model.Post{
+					ChannelId: args.ChannelId,
+					UserId:    p.userID,
+					Message:   "삭제 성공 :)",
+				}
+				p.API.SendEphemeralPost(user.Id, &post)
+				break
+			}
+		}
+
+		channelJSON, err3 := json.Marshal(channelList)
+		if err3 != nil {
+			p.API.LogError(">>> [에러] Occurred error when Marshal : " + err3.Error())
+			return &model.CommandResponse{}, nil
+		}
+
+		err = p.API.KVSet(ChannelListKey, channelJSON)
+		if err != nil {
+			p.API.LogError(">>> [에러] Occurred error when KVSet : " + err.Error())
+			return &model.CommandResponse{}, err
+		}
 	}
 
 	return &model.CommandResponse{}, nil
