@@ -56,6 +56,13 @@ func (p *Plugin) settingScheduler() *cluster.Job {
 					p.API.LogError(">>> [에러] Failed to send notification. Error: " + jobErr.Error())
 				}
 			}
+
+			if nowTime.Hour() == 12 {
+				remindErr := SendReminder(p, nowTime)
+				if remindErr != nil {
+					p.API.LogError(">>> [에러] Failed to send reminder. Error: " + remindErr.Error())
+				}
+			}
 		},
 	)
 
