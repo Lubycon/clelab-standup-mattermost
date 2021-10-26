@@ -33,12 +33,9 @@ func SendNotification(p *Plugin, nowTime time.Time) error {
 			return err
 		}
 
-		users, err3 := p.API.GetUsersInChannel(channel.ID, "username", 0, 100)
-		if err3 != nil {
-			return err3
-		}
-		for _, user := range users {
-			p.PostBotDM(user.Id, message)
+		ids := channel.Users
+		for _, id := range ids {
+			p.PostBotDM(id, message)
 		}
 	}
 	return nil
@@ -58,12 +55,11 @@ func SendReminder(p *Plugin, nowTime time.Time) error {
 	then := nowTime.Add(time.Duration(-4) * time.Hour)
 
 	for _, channel := range channelList {
-		users, err3 := p.API.GetUsersInChannel(channel.ID, "username", 0, 100)
-		if err3 != nil {
-			return err3
-		}
-		for _, user := range users {
-			dmChannel, appError := p.API.GetDirectChannel(user.Id, p.userID)
+		ids := channel.Users
+		p.API.LogInfo("보여줘!! : " + strings.Join(ids, ","))
+
+		for _, id := range ids {
+			dmChannel, appError := p.API.GetDirectChannel(id, p.userID)
 			if appError != nil {
 				return appError
 			}
@@ -76,7 +72,7 @@ func SendReminder(p *Plugin, nowTime time.Time) error {
 			}
 
 			if len(postList.Posts) == 0 {
-				p.PostBotDM(user.Id, "설마 ... 스탠드업을 잊은건 아니겠죠? 😭")
+				p.PostBotDM(id, "설마 ... 스탠드업을 잊은건 아니겠죠? 😭")
 			}
 		}
 	}

@@ -55,7 +55,58 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	if strings.HasSuffix(command, "send") {
 		message := StandUpMessage
-		p.PostBotDM(TestUserID, message) //FIXME: 여기 바꿔야됨!
+		p.PostBotDM(TestUserID, message)
+	}
+
+	if strings.HasSuffix(command, "apply") {
+		channelID := args.ChannelId
+		channelListData, err := p.API.KVGet(ChannelListKey)
+		if err != nil {
+			p.API.LogError(">>> [에러] Occurred error when KVGet : " + err.Error())
+			return &model.CommandResponse{}, err
+		}
+
+		channelList := types.ChannelList{}
+		err2 := json.Unmarshal(channelListData, &channelList)
+		if err2 != nil {
+			p.API.LogError(">>> [에러] Occurred error when Unmarshal : " + err2.Error())
+		}
+
+		for i, ch := range channelList {
+			if ch.ID == channelID {
+				for _, userId := range ch.Users {
+					if userId == args.UserId {
+						p.API.SendEphemeralPost(user.Id, &model.Post{
+							ChannelId: args.ChannelId,
+							UserId:    p.userID,
+							Message:   "이미 등록된 유저입니다.",
+						})
+
+						return &model.CommandResponse{}, nil
+					}
+
+					channelList[i].Users = append(channelList[i].Users, args.UserId)
+				}
+
+				p.API.SendEphemeralPost(user.Id, &model.Post{
+					ChannelId: args.ChannelId,
+					UserId:    p.userID,
+					Message:   "추가 성공!! 내일부터 스탠드업에서 만나요 :)",
+				})
+			}
+		}
+
+		channelJSON, err3 := json.Marshal(channelList)
+		if err3 != nil {
+			p.API.LogError(">>> [에러] Occurred error when Marshal : " + err3.Error())
+			return &model.CommandResponse{}, nil
+		}
+
+		err = p.API.KVSet(ChannelListKey, channelJSON)
+		if err != nil {
+			p.API.LogError(">>> [에러] Occurred error when KVSet : " + err.Error())
+			return &model.CommandResponse{}, err
+		}
 	}
 
 	if strings.HasSuffix(command, "addChannel") {
@@ -72,7 +123,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 			p.API.LogError(">>> [에러] Occurred error when Unmarshal : " + err2.Error())
 		}
 
-		channel := types.Channel{ID: channelID}
+		channel := types.Channel{ID: channelID, Users: []string{}}
 		for _, ch := range channelList {
 			if ch.ID == channel.ID {
 				post := model.Post{
