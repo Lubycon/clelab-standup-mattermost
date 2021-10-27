@@ -16,7 +16,7 @@
 유저 본인만 등록할 수 있으며, add된 채널에 해당 명령어를 입력하면 매일 **오전 10시쯤**에 apply한 유저 대상으로 DM을 보냅니다.
 
 ![image](https://user-images.githubusercontent.com/42836576/138896287-5a2f615d-aecd-45ce-86db-d038621fde7e.png) <br>
-입력한 메시지는 해당 채널에 전송됩니다.
+입력한 메시지는 해당 채널에 전송됩니다. (아직은 한꺼번에 답변을 ... 해야합니다 😭)
 
 ![image](https://user-images.githubusercontent.com/42836576/138896919-b04d96d0-193a-4e10-b105-d260fe538dd1.png) <br>
 12시까지 입력하지 않으면 리마인드 DM을 전송합니다.
