@@ -10,7 +10,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-const CommandTrigger = "cletandup"
+const (
+	CommandTrigger = "cletandup"
+
+	UserAddedMessage                = "추가 성공!! 내일부터 스탠드업에서 만나요 :)"
+	AlreadyRegisteredUserMessage    = "이미 등록된 유저입니다."
+	AlreadyRegisteredChannelMessage = "이미 추가되어있는 채널입니다."
+	ChannelDeletedMessage           = "삭제 성공 :)"
+	ChannelAddedMessage             = "추가 성공 :)"
+)
 
 func (p *Plugin) registerCommand() error {
 	if err := p.API.RegisterCommand(&model.Command{
@@ -64,7 +72,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 						p.API.SendEphemeralPost(user.Id, &model.Post{
 							ChannelId: args.ChannelId,
 							UserId:    p.userID,
-							Message:   "이미 등록된 유저입니다.",
+							Message:   AlreadyRegisteredUserMessage,
 						})
 
 						return &model.CommandResponse{}, nil
@@ -79,13 +87,12 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				p.API.SendEphemeralPost(user.Id, &model.Post{
 					ChannelId: args.ChannelId,
 					UserId:    p.userID,
-					Message:   "추가 성공!! 내일부터 스탠드업에서 만나요 :)",
+					Message:   UserAddedMessage,
 				})
 
 				return &model.CommandResponse{}, nil
 			}
 		}
-
 	}
 
 	if strings.HasSuffix(command, "addChannel") {
@@ -98,7 +105,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				post := model.Post{
 					ChannelId: args.ChannelId,
 					UserId:    p.userID,
-					Message:   "이미 추가되어있는 채널입니다.",
+					Message:   AlreadyRegisteredChannelMessage,
 				}
 				p.API.SendEphemeralPost(user.Id, &post)
 				return &model.CommandResponse{}, nil
@@ -118,7 +125,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		post := model.Post{
 			ChannelId: args.ChannelId,
 			UserId:    p.userID,
-			Message:   "추가 성공 :)",
+			Message:   ChannelAddedMessage,
 		}
 		p.API.SendEphemeralPost(user.Id, &post)
 	}
@@ -135,7 +142,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				post := model.Post{
 					ChannelId: args.ChannelId,
 					UserId:    p.userID,
-					Message:   "삭제 성공 :)",
+					Message:   ChannelDeletedMessage,
 				}
 				p.API.SendEphemeralPost(user.Id, &post)
 				break
