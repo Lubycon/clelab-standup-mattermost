@@ -24,6 +24,7 @@ func SendNotification(p *Plugin, nowTime time.Time) error {
 		ids := channel.Users
 		for _, id := range ids {
 			p.PostBotDM(id, StandUpMessage)
+			p.PostBotDM(id, Question1)
 		}
 	}
 	return nil
@@ -49,7 +50,7 @@ func SendReminder(p *Plugin, nowTime time.Time) error {
 				return appError
 			}
 
-			if len(postList.Posts) == 0 {
+			if len(postList.Posts) == 2 {
 				p.PostBotDM(id, "설마 ... 스탠드업을 잊은건 아니겠죠? 😭")
 			}
 		}

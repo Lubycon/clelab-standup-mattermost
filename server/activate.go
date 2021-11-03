@@ -42,13 +42,7 @@ func (p *Plugin) settingScheduler() *cluster.Job {
 		"BackgroundJob",
 		cluster.MakeWaitForRoundedInterval(1*time.Hour),
 		func() {
-			loc, err := time.LoadLocation("Asia/Seoul")
-			if err != nil {
-				panic(err)
-			}
-
-			now := time.Now()
-			nowTime := now.In(loc)
+			nowTime := getNowTime()
 
 			if nowTime.Hour() == 10 {
 				jobErr := SendNotification(p, nowTime)
