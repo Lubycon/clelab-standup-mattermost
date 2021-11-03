@@ -55,15 +55,12 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	if strings.HasSuffix(command, "apply") {
 		channelID := args.ChannelId
-		channelListData, _ := p.API.KVGet(ChannelListKey)
-
-		channelList := types.ChannelList{}
-		_ = json.Unmarshal(channelListData, &channelList)
+		channelList := getChannels(p)
 
 		for i, ch := range channelList {
 			if ch.ID == channelID {
-				for _, userId := range ch.Users {
-					if userId == args.UserId {
+				for _, userID := range ch.Users {
+					if userID == args.UserId {
 						p.API.SendEphemeralPost(user.Id, &model.Post{
 							ChannelId: args.ChannelId,
 							UserId:    p.userID,
@@ -72,20 +69,23 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 						return &model.CommandResponse{}, nil
 					}
-
-					channelList[i].Users = append(channelList[i].Users, args.UserId)
 				}
+
+				channelList[i].Users = append(channelList[i].Users, args.UserId)
+
+				channelJSON, _ := json.Marshal(channelList)
+				_ = p.API.KVSet(ChannelListKey, channelJSON)
 
 				p.API.SendEphemeralPost(user.Id, &model.Post{
 					ChannelId: args.ChannelId,
 					UserId:    p.userID,
 					Message:   "추가 성공!! 내일부터 스탠드업에서 만나요 :)",
 				})
+
+				return &model.CommandResponse{}, nil
 			}
 		}
 
-		channelJSON, _ := json.Marshal(channelList)
-		_ = p.API.KVSet(ChannelListKey, channelJSON)
 	}
 
 	if strings.HasSuffix(command, "addChannel") {
