@@ -1,22 +1,15 @@
 package main
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-starter-template/server/types"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 )
 
 func SendNotification(p *Plugin, nowTime time.Time) error {
-	message := StandUpMessage
-
-	channelListData, _ := p.API.KVGet(ChannelListKey)
-	channelList := types.ChannelList{}
-
-	_ = json.Unmarshal(channelListData, &channelList)
+	channelList := getChannels(p)
 
 	for _, channel := range channelList {
 		_, err := p.API.CreatePost(&model.Post{
@@ -30,18 +23,14 @@ func SendNotification(p *Plugin, nowTime time.Time) error {
 
 		ids := channel.Users
 		for _, id := range ids {
-			p.PostBotDM(id, message)
+			p.PostBotDM(id, StandUpMessage)
 		}
 	}
 	return nil
 }
 
 func SendReminder(p *Plugin, nowTime time.Time) error {
-	channelListData, _ := p.API.KVGet(ChannelListKey)
-	channelList := types.ChannelList{}
-
-	_ = json.Unmarshal(channelListData, &channelList)
-
+	channelList := getChannels(p)
 	then := nowTime.Add(time.Duration(-4) * time.Hour)
 
 	for _, channel := range channelList {

@@ -7,11 +7,12 @@ import (
 )
 
 func getChannels(p *Plugin) types.ChannelList {
-	channelListData, _ := p.API.KVGet(ChannelListKey)
-	channelList := types.ChannelList{}
-	err := json.Unmarshal(channelListData, &channelList)
+	kv, _ := p.API.KVGet(ChannelListKey)
+	channels := types.ChannelList{}
+	err := json.Unmarshal(kv, &channels)
 	if err != nil {
 		p.API.LogError(">>> [에러] unmarshal error: " + err.Error())
 	}
-	return channelList
+
+	return channels
 }
