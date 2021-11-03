@@ -6,6 +6,7 @@ import (
 )
 
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
+
 	channel, err := p.API.GetDirectChannel(post.UserId, p.userID)
 	if err != nil {
 		p.API.LogError(

@@ -53,24 +53,12 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return &model.CommandResponse{}, nil
 	}
 
-	if strings.HasSuffix(command, "send") {
-		message := StandUpMessage
-		p.PostBotDM(TestUserID, message)
-	}
-
 	if strings.HasSuffix(command, "apply") {
 		channelID := args.ChannelId
-		channelListData, err := p.API.KVGet(ChannelListKey)
-		if err != nil {
-			p.API.LogError(">>> [에러] Occurred error when KVGet : " + err.Error())
-			return &model.CommandResponse{}, err
-		}
+		channelListData, _ := p.API.KVGet(ChannelListKey)
 
 		channelList := types.ChannelList{}
-		err2 := json.Unmarshal(channelListData, &channelList)
-		if err2 != nil {
-			p.API.LogError(">>> [에러] Occurred error when Unmarshal : " + err2.Error())
-		}
+		_ = json.Unmarshal(channelListData, &channelList)
 
 		for i, ch := range channelList {
 			if ch.ID == channelID {
@@ -96,17 +84,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 			}
 		}
 
-		channelJSON, err3 := json.Marshal(channelList)
-		if err3 != nil {
-			p.API.LogError(">>> [에러] Occurred error when Marshal : " + err3.Error())
-			return &model.CommandResponse{}, nil
-		}
-
-		err = p.API.KVSet(ChannelListKey, channelJSON)
-		if err != nil {
-			p.API.LogError(">>> [에러] Occurred error when KVSet : " + err.Error())
-			return &model.CommandResponse{}, err
-		}
+		channelJSON, _ := json.Marshal(channelList)
+		_ = p.API.KVSet(ChannelListKey, channelJSON)
 	}
 
 	if strings.HasSuffix(command, "addChannel") {

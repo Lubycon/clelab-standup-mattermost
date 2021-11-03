@@ -13,15 +13,10 @@ import (
 func SendNotification(p *Plugin, nowTime time.Time) error {
 	message := StandUpMessage
 
-	channelListData, err := p.API.KVGet(ChannelListKey)
-	if err != nil {
-		return err
-	}
+	channelListData, _ := p.API.KVGet(ChannelListKey)
 	channelList := types.ChannelList{}
-	err2 := json.Unmarshal(channelListData, &channelList)
-	if err2 != nil {
-		return err2
-	}
+
+	_ = json.Unmarshal(channelListData, &channelList)
 
 	for _, channel := range channelList {
 		_, err := p.API.CreatePost(&model.Post{
@@ -42,21 +37,15 @@ func SendNotification(p *Plugin, nowTime time.Time) error {
 }
 
 func SendReminder(p *Plugin, nowTime time.Time) error {
-	channelListData, err := p.API.KVGet(ChannelListKey)
-	if err != nil {
-		return err
-	}
+	channelListData, _ := p.API.KVGet(ChannelListKey)
 	channelList := types.ChannelList{}
-	err2 := json.Unmarshal(channelListData, &channelList)
-	if err2 != nil {
-		return err2
-	}
+
+	_ = json.Unmarshal(channelListData, &channelList)
 
 	then := nowTime.Add(time.Duration(-4) * time.Hour)
 
 	for _, channel := range channelList {
 		ids := channel.Users
-		p.API.LogInfo("보여줘!! : " + strings.Join(ids, ","))
 
 		for _, id := range ids {
 			dmChannel, appError := p.API.GetDirectChannel(id, p.userID)
