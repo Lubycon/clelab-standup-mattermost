@@ -1,27 +1,15 @@
 package main
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-starter-template/server/types"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 )
 
 func SendNotification(p *Plugin, nowTime time.Time) error {
-	message := StandUpMessage
-
-	channelListData, err := p.API.KVGet(ChannelListKey)
-	if err != nil {
-		return err
-	}
-	channelList := types.ChannelList{}
-	err2 := json.Unmarshal(channelListData, &channelList)
-	if err2 != nil {
-		return err2
-	}
+	channelList := getChannels(p)
 
 	for _, channel := range channelList {
 		_, err := p.API.CreatePost(&model.Post{
@@ -35,28 +23,19 @@ func SendNotification(p *Plugin, nowTime time.Time) error {
 
 		ids := channel.Users
 		for _, id := range ids {
-			p.PostBotDM(id, message)
+			p.PostBotDM(id, StandUpMessage)
+			p.PostBotDM(id, Question1)
 		}
 	}
 	return nil
 }
 
 func SendReminder(p *Plugin, nowTime time.Time) error {
-	channelListData, err := p.API.KVGet(ChannelListKey)
-	if err != nil {
-		return err
-	}
-	channelList := types.ChannelList{}
-	err2 := json.Unmarshal(channelListData, &channelList)
-	if err2 != nil {
-		return err2
-	}
-
+	channelList := getChannels(p)
 	then := nowTime.Add(time.Duration(-4) * time.Hour)
 
 	for _, channel := range channelList {
 		ids := channel.Users
-		p.API.LogInfo("보여줘!! : " + strings.Join(ids, ","))
 
 		for _, id := range ids {
 			dmChannel, appError := p.API.GetDirectChannel(id, p.userID)
@@ -71,8 +50,8 @@ func SendReminder(p *Plugin, nowTime time.Time) error {
 				return appError
 			}
 
-			if len(postList.Posts) == 0 {
-				p.PostBotDM(id, "설마 ... 스탠드업을 잊은건 아니겠죠? 😭")
+			if len(postList.Posts) == 2 {
+				p.PostBotDM(id, StandUpRemindMessage)
 			}
 		}
 	}
