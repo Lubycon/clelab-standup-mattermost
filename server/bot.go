@@ -51,7 +51,7 @@ func SendReminder(p *Plugin, nowTime time.Time) error {
 			}
 
 			if len(postList.Posts) == 2 {
-				p.PostBotDM(id, "설마 ... 스탠드업을 잊은건 아니겠죠? 😭")
+				p.PostBotDM(id, StandUpRemindMessage)
 			}
 		}
 	}
